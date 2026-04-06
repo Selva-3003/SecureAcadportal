@@ -71,3 +71,4 @@ The backend also **serves the frontend** automatically — just open the URL abo
 | `JWT_SECRET`   | Secret key for JWT tokens        |
 | `JWT_EXPIRES_IN` | Token expiry duration           |
 | `NODE_ENV`     | Environment (`development`/`production`) |
+"# SecurePortal" 
