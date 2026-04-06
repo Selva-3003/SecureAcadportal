@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acad Portal – Secure Academic Communication</title>
+  <meta name="description"
+    content="A secure, role-based academic communication portal for students, faculty, and administrators. Featuring real-time chat, assignment management, and academic tracking." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+
+  <!-- ======================== LOGIN PAGE ======================== -->
+  <div id="login-page" class="page active">
+    <div class="lp-bg">
+
+      <!-- LEFT — Credential Form -->
+      <div class="lp-left">
+        <div class="lp-logo-wrap">
+          <img src="acadportal_logo_v2.png" class="lp-logo-img" alt="AcadPortal Logo" />
+          <h1 class="lp-brand-name">Acad<span>Portal</span></h1>
+        </div>
+
+        <div class="lp-card" id="login-card-view">
+          <h2 class="lp-form-title">SIGN <span class="lp-form-title-accent">IN</span></h2>
+
+          <!-- Failed attempts bar -->
+          <div class="lp-attempts-wrap hidden" id="lp-attempts-wrap">
+            <div class="lp-attempts-top">
+              <span>⚠ Failed attempts</span>
+              <span id="lp-attempts-count">0 / 5</span>
+            </div>
+            <div class="lp-attempts-track">
+              <div class="lp-attempts-fill" id="lp-attempts-fill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div id="login-error" class="lp-error hidden"></div>
+
+          <form id="login-form" autocomplete="off">
+            <div class="lp-field">
+              <label class="lp-field-lbl">EMAIL ADDRESS</label>
+              <div class="lp-input-wrap">
+                <input type="email" id="login-email" class="lp-input" placeholder="user@portal.edu" required />
+                <div class="lp-underline"></div>
+              </div>
+            </div>
+
+            <div class="lp-field">
+              <label class="lp-field-lbl">PASSWORD</label>
+              <div class="lp-input-wrap">
+                <input type="password" id="login-password" class="lp-input" placeholder="••••••••" required />
+                <button type="button" id="toggle-pw" class="lp-eye-btn">👁</button>
+                <div class="lp-underline"></div>
+              </div>
+              <div class="lp-hash-preview" id="lp-hash-preview"></div>
+            </div>
+
+            <button type="submit" class="lp-submit" id="login-btn">
+              <span class="btn-text">AUTHENTICATE</span>
+              <span class="lp-arrow">→</span>
+            </button>
+          </form>
+
+          <!-- Demo access -->
+          <div class="lp-demo-section">
+            <div class="lp-demo-label">// QUICK DEMO ACCESS</div>
+            <div class="lp-demo-pills">
+              <button class="lp-demo-pill" data-email="alex.t@portal.edu" data-pw="Student@123">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="pill-icon"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-opacity="0.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Student
+              </button>
+              <button class="lp-demo-pill" data-email="sarah.johnson@portal.edu" data-pw="Faculty@123">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="pill-icon"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5z" stroke="currentColor" stroke-width="2"/><path d="M9 2v10l3-2 3 2V2" stroke="currentColor" stroke-opacity="0.6" stroke-width="2"/></svg>
+                Faculty
+              </button>
+              <button class="lp-demo-pill" data-email="admin@portal.edu" data-pw="Admin@123">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="pill-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="11" r="3" stroke="currentColor" stroke-opacity="0.6" stroke-width="2"/></svg>
+                Admin
+              </button>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 20px;">
+            <a href="#" id="go-to-signup"
+              style="font-family:'DM Mono',monospace;font-size:11px;color:var(--primary);text-decoration:none;letter-spacing:1px;">[
+              REGISTER NEW ACCOUNT ]</a>
+          </div>
+        </div>
+
+        <!-- LEFT — Registration Form -->
+        <div class="lp-card hidden" id="signup-card-view">
+          <h2 class="lp-form-title">SIGN <span class="lp-form-title-accent">UP</span></h2>
+          <div id="signup-error" class="lp-error hidden"></div>
+          <form id="signup-form" autocomplete="off">
+            <div class="lp-field">
+              <label class="lp-field-lbl">FULL NAME</label>
+              <div class="lp-input-wrap">
+                <input type="text" id="reg-name" class="lp-input" placeholder="John Doe" required />
+                <div class="lp-underline"></div>
+              </div>
+            </div>
+            <div class="lp-field">
+              <label class="lp-field-lbl">EMAIL ADDRESS</label>
+              <div class="lp-input-wrap">
+                <input type="email" id="reg-email" class="lp-input" placeholder="newuser@portal.edu" required />
+                <div class="lp-underline"></div>
+              </div>
+            </div>
+            <div class="lp-field">
+              <label class="lp-field-lbl">PASSWORD</label>
+              <div class="lp-input-wrap">
+                <input type="password" id="reg-password" class="lp-input" placeholder="••••••••" required />
+                <button type="button" id="toggle-reg-pw" class="lp-eye-btn">👁</button>
+                <div class="lp-underline"></div>
+              </div>
+            </div>
+            <div class="lp-field" id="reg-student-fields">
+              <div style="display: flex; gap: 16px;">
+                <div style="flex: 1;">
+                  <label class="lp-field-lbl">STUDENT ID (SID)</label>
+                  <div class="lp-input-wrap">
+                    <input type="text" id="reg-sid" class="lp-input" placeholder="e.g. STU999" />
+                    <div class="lp-underline"></div>
+                  </div>
+                </div>
+                <div style="flex: 1;">
+                  <label class="lp-field-lbl">DEPARTMENT</label>
+                  <div class="lp-input-wrap">
+                    <input type="text" id="reg-dept" class="lp-input" placeholder="e.g. Computer Science" />
+                    <div class="lp-underline"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="lp-field" style="margin-bottom: 24px;">
+              <label class="lp-field-lbl">ROLE</label>
+              <div class="lp-roles" id="reg-roles" style="margin-bottom: 0;">
+                <button type="button" class="lp-role-pill active" data-role="student">👨‍🎓 Student</button>
+                <button type="button" class="lp-role-pill" data-role="faculty">👨‍🏫 Faculty</button>
+                <button type="button" class="lp-role-pill" data-role="admin">🛡 Admin</button>
+              </div>
+            </div>
+            <button type="submit" class="lp-submit" id="signup-btn">
+              <span class="btn-text">CREATE ACCOUNT</span>
+              <span class="lp-arrow">→</span>
+            </button>
+            <button type="button"
+              style="width:100%;margin-top:14px;background:none;border:none;color:var(--text-muted);font-size:12px;font-family:'DM Mono',monospace;letter-spacing:1px;cursor:pointer"
+              id="go-to-login">← BACK TO LOGIN</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- RIGHT — Milestone Live Feed -->
+      <div class="lp-right">
+        <canvas id="particles-canvas"></canvas>
+        <div class="marquee-header">
+          <div class="live-indicator">
+            <span class="pulse-dot"></span>
+            LIVE ACADEMIC SYNERGY
+          </div>
+          <h2>Secure Communication <span>Direct Connectivity between Students & Faculty</span></h2>
+        </div>
+
+        <div class="marquee-belt-wrap">
+          <!-- Belt 1: Collaborative Activities -->
+          <div class="marquee-belt belt-rtl">
+            <div class="success-card">
+              <div class="success-avatar av-blue" data-major="cs">RS</div>
+              <div class="success-info">
+                <span class="success-name">Research Collaboration</span>
+                <span class="success-role">Dr. Sarah & Alex published a paper</span>
+                <span class="success-company">AI/ML DEPARTMENT</span>
+              </div>
+              <div class="success-badge">UPDATED</div>
+            </div>
+            <div class="success-card">
+              <div class="success-avatar av-purple" data-major="ml">DR</div>
+              <div class="success-info">
+                <span class="success-name">Doubt Resolution</span>
+                <span class="success-role">150+ Queries resolved today</span>
+                <span class="success-company">PHYSICS FACULTY</span>
+              </div>
+              <div class="success-badge">ACTIVE</div>
+            </div>
+            <div class="success-card">
+              <div class="success-avatar av-pink" data-major="analyst">SN</div>
+              <div class="success-info">
+                <span class="success-name">Session Update</span>
+                <span class="success-role">Lecture notes updated for Batch 24</span>
+                <span class="success-company">PROFESSOR MIKE</span>
+              </div>
+              <div class="success-badge">NEW</div>
+            </div>
+            <div class="success-card">
+              <div class="success-avatar av-cyan" data-major="cs">AD</div>
+              <div class="success-info">
+                <span class="success-name">Admin Support</span>
+                <span class="success-role">Instant query resolution in 2mins</span>
+                <span class="success-company">HELPDESK TICKETS</span>
+              </div>
+              <div class="success-badge">RESOLVED</div>
+            </div>
+            <div class="success-card"><div class="success-avatar av-blue" data-major="cs">RS</div><div class="success-info"><span class="success-name">Paper Published</span><span class="success-role">Faculty-Student Synergy</span><span class="success-company">AI RESEARCH</span></div><div class="success-badge">SUCCESS</div></div>
+            <div class="success-card"><div class="success-avatar av-purple" data-major="ml">DR</div><div class="success-info"><span class="success-name">Doubts Clear</span><span class="success-role">Instant Interaction</span><span class="success-company">FACULTY CHAT</span></div><div class="success-badge">LIVE</div></div>
+          </div>
+
+          <!-- Belt 2: Platform Milestones -->
+          <div class="marquee-belt belt-ltr">
+            <div class="success-card">
+              <div class="success-avatar av-teal" data-major="ml">EM</div>
+              <div class="success-info">
+                <span class="success-name">Encrypted Messaging</span>
+                <span class="success-role">5k+ Secure threads active globally</span>
+                <span class="success-company">SSL CORE v2.4</span>
+              </div>
+              <div class="success-badge">SECURE</div>
+            </div>
+            <div class="success-card">
+              <div class="success-avatar av-amber" data-major="cs">RS</div>
+              <div class="success-info">
+                <span class="success-name">Resource Sharing</span>
+                <span class="success-role">1.2k Documents shared today</span>
+                <span class="success-company">SECURE STORAGE</span>
+              </div>
+              <div class="success-badge">98% UP</div>
+            </div>
+            <div class="success-card">
+              <div class="success-avatar av-indigo" data-major="cs">GC</div>
+              <div class="success-info">
+                <span class="success-name">Global Connectivity</span>
+                <span class="success-role">50 Guest Lecturers joined rooms</span>
+                <span class="success-company">SEMINAR HUB</span>
+              </div>
+              <div class="success-badge">CONNECTED</div>
+            </div>
+            <div class="success-card">
+              <div class="success-avatar av-rose" data-major="analyst">EF</div>
+              <div class="success-info">
+                <span class="success-name">Faculty Efficiency</span>
+                <span class="success-role">Response time: under 5 minutes</span>
+                <span class="success-company">PERFORMANCE KPI</span>
+              </div>
+              <div class="success-badge">ELITE</div>
+            </div>
+            <div class="success-card"><div class="success-avatar av-teal" data-major="ml">EM</div><div class="success-info"><span class="success-name">Data Safety</span><span class="success-role">E2E Encryption</span><span class="success-company">CYBER CORE</span></div><div class="success-badge">VERIFIED</div></div>
+            <div class="success-card"><div class="success-avatar av-amber" data-major="cs">RS</div><div class="success-info"><span class="success-name">Speed Metrics</span><span class="success-role">High Frequency Hub</span><span class="success-company">CLOUD OS</span></div><div class="success-badge">FAST</div></div>
+          </div>
+
+          <!-- Belt 3: Features & Peer Flow -->
+          <div class="marquee-belt belt-rtl">
+            <div class="success-card">
+              <div class="success-avatar av-violet" data-major="cs">AS</div>
+              <div class="success-info">
+                <span class="success-name">Assignment Submits</span>
+                <span class="success-role">99.8% encrypyed success rate</span>
+                <span class="success-company">ACAD CORE</span>
+              </div>
+              <div class="success-badge">VALIDATED</div>
+            </div>
+            <div class="success-card">
+              <div class="success-avatar av-blue" data-major="cs">FB</div>
+              <div class="success-info">
+                <span class="success-name">Faculty Broadcast</span>
+                <span class="success-role">CS Dept: 500+ Students updated</span>
+                <span class="success-company">GLOBAL ANNOUNCE</span>
+              </div>
+              <div class="success-badge">BROADCAST</div>
+            </div>
+            <div class="success-card">
+              <div class="success-avatar av-purple" data-major="ml">PG</div>
+              <div class="success-info">
+                <span class="success-name">Peer Study Groups</span>
+                <span class="success-role">20 New collab groups created</span>
+                <span class="success-company">COMMUNITY CORE</span>
+              </div>
+              <div class="success-badge">GROWING</div>
+            </div>
+             <div class="success-card">
+              <div class="success-avatar av-orange" data-major="cs">TS</div>
+              <div class="success-info">
+                <span class="success-name">Tech Support 24/7</span>
+                <span class="success-role">Live portal monitors active</span>
+                <span class="success-company">ADMIN DEPT</span>
+              </div>
+              <div class="success-badge">ONLINE</div>
+            </div>
+            <div class="success-card"><div class="success-avatar av-violet" data-major="cs">AS</div><div class="success-info"><span class="success-name">Cloud Sync</span><span class="success-role">Auto Backup Enabled</span><span class="success-company">SYSTEM OS</span></div><div class="success-badge">SYNCED</div></div>
+            <div class="success-card"><div class="success-avatar av-blue" data-major="cs">FB</div><div class="success-info"><span class="success-name">Portal Status</span><span class="success-role">99.9% Latency Free</span><span class="success-company">CYBER HUB</span></div><div class="success-badge">OPTIMAL</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ======================== MAIN APP ======================== -->
+
+  <div id="app-page" class="page hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <svg class="sidebar-logo" width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00ABE4" />
+                <stop offset="100%" stop-color="#0060e4" />
+              </linearGradient>
+            </defs>
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#logo-grad)" fill-opacity="0.1" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 14.5L12 17.5L17 14.5" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 17.5V22" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="8" y="8" width="8" height="8" rx="1.5" stroke="#00ABE4" stroke-width="1" stroke-dasharray="1 1"/>
+          </svg>
+          <div>
+            <div class="sidebar-title">Acad<span>Portal</span></div>
+            <div class="sidebar-subtitle">Cloud Core OS v2.4</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="user-card">
+        <div class="user-avatar" id="sidebar-avatar">A</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-name">Loading...</div>
+          <div class="user-role-badge" id="sidebar-role">student</div>
+        </div>
+        <div class="online-dot"></div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <!-- Filled by JS based on role -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn-logout" id="logout-btn">🚪 Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Mobile sidebar toggle -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="top-bar">
+        <div class="page-title" id="page-title">Dashboard</div>
+        <div class="top-bar-actions">
+          <div class="connection-status" id="conn-status">
+            <span class="status-dot online"></span>
+            <span>Connected</span>
+          </div>
+          <div class="warning-badge" id="warning-badge" style="display:none">
+            ⚠️ <span id="warning-count">0</span> Warning(s)
+          </div>
+        </div>
+      </div>
+
+      <div class="content-area" id="content-area">
+        <!-- Dynamic content rendered by JS -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast notifications -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="http://localhost:3001/socket.io/socket.io.js"></script>
+  <script src="/views.js"></script>
+  <script src="/messages.js"></script>
+  <script src="/modules.js"></script>
+  <script src="/admin.js"></script>
+  <script src="/app.js"></script>
+</body>
+
+</html>

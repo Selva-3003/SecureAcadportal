@@ -1,0 +1,12 @@
+{
+  "name": "acad-portal-frontend",
+  "version": "1.0.0",
+  "description": "Frontend UI for the Secure Academic Communication Portal",
+  "scripts": {
+    "serve": "start http://localhost:3000",
+    "open": "start http://localhost:3000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

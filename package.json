@@ -1,0 +1,9 @@
+{
+  "name": "acad-portal",
+  "version": "1.0.0",
+  "description": "Secure Academic Communication Portal",
+  "scripts": {
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && node server.js"
+  }
+}
