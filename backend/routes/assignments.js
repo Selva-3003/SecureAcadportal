@@ -11,7 +11,7 @@ const ALLOWED_EXTENSIONS = ['.pdf', '.doc', '.docx', '.txt', '.zip', '.png', '.j
 const BLOCKED_EXTENSIONS = ['.exe', '.bat', '.sh', '.cmd', '.ps1', '.msi', '.vbs', '.js', '.php'];
 
 const storage = multer.diskStorage({
-    destination: 'uploads/',
+    destination: path.join(__dirname, '../uploads'),
     filename: (req, file, cb) => {
         const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
         cb(null, Date.now() + '-' + safe);

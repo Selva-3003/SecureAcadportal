@@ -36,7 +36,7 @@ async function renderProjects() {
             ${p.faculty_name ? `<div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5z"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><polyline points="10 2 10 10 13 8 16 10 16 2"/></svg> Advisor: ${p.faculty_name}</div>` : ''}
             ${!isStudent ? `
               <div style="margin-top:12px;display:flex;gap:8px">
-                <button class="btn btn-primary btn-sm" onclick="updateProjectProgress(${p.id},${p.progress})">Update Progress</button>
+                <button class="btn btn-primary btn-sm" onclick="updateProjectProgress('${p.id}',${p.progress})">Update Progress</button>
               </div>` : ''}
           </div>`).join('') + `</div>`}`;
 
@@ -179,9 +179,9 @@ async function renderAdminUsers() {
               <td><span class="badge badge-${u.is_suspended ? 'danger' : 'success'}">${u.is_suspended ? '🚫 Suspended' : '✅ Active'}</span></td>
               <td style="display:flex;gap:6px;flex-wrap:wrap">
                 ${u.is_suspended
-        ? `<button class="btn btn-success btn-sm" onclick="recoverUser(${u.id})">Recover</button>`
-        : `<button class="btn btn-warning btn-sm" onclick="suspendUser(${u.id})">Suspend</button>`}
-                <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Delete</button>
+        ? `<button class="btn btn-success btn-sm" onclick="recoverUser('${u.id}')">Recover</button>`
+        : `<button class="btn btn-warning btn-sm" onclick="suspendUser('${u.id}')">Suspend</button>`}
+                <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">Delete</button>
               </td>
             </tr>`).join('')}
           </tbody>
@@ -260,19 +260,22 @@ async function renderAdminWarnings() {
   try {
     const warnings = await api('GET', '/admin/warnings');
 
-    // Group warnings by user
+    // Group warnings by user - extraction must use w.user_id._id if populated
     const usersMap = {};
     warnings.forEach(w => {
-      if (!usersMap[w.user_id]) {
-        usersMap[w.user_id] = {
-          id: w.user_id,
-          name: w.user_name,
+      const actualUserId = w.user_id?._id || w.user_id; // Handles both populated object and direct ID
+      if (!actualUserId) return; // Skip if no user linked
+      
+      if (!usersMap[actualUserId]) {
+        usersMap[actualUserId] = {
+          id: actualUserId,
+          name: w.user_name || 'Deleted User',
           student_id: w.student_id,
           is_suspended: w.is_suspended,
           warningsList: []
         };
       }
-      usersMap[w.user_id].warningsList.push(w);
+      usersMap[actualUserId].warningsList.push(w);
     });
 
     const userCardsHtml = Object.values(usersMap).map(u => {
@@ -289,7 +292,7 @@ async function renderAdminWarnings() {
 
       const recoverBtnHtml = u.is_suspended
         ? `<div style="margin-top:16px;">
-             <button class="btn" style="background:rgba(0, 230, 118, 0.1); color:#00E676; border:1px solid rgba(0, 230, 118, 0.2); border-radius:6px; padding:6px 14px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;" onclick="recoverUser(${u.id})">
+             <button class="btn" style="background:rgba(0, 230, 118, 0.1); color:#00E676; border:1px solid rgba(0, 230, 118, 0.2); border-radius:6px; padding:6px 14px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;" onclick="recoverUser('${u.id}')">
                🔓 Recover Account
              </button>
            </div>`
@@ -423,7 +426,7 @@ async function renderSecurityCenter() {
                 <td style="white-space:nowrap;color:var(--text-muted)">${fmtDate(a.created_at)}</td>
                 <td>${a.resolved
             ? `<span class="badge badge-success">✅ Resolved</span>`
-            : `<button class="btn btn-success btn-sm" onclick="resolveAlert(${a.id})">Resolve</button>`}</td>
+            : `<button class="btn btn-success btn-sm" onclick="resolveAlert('${a.id}')">Resolve</button>`}</td>
               </tr>`).join('')}
           </tbody>
         </table>

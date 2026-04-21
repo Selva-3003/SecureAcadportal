@@ -40,8 +40,8 @@ async function renderAssignments() {
               <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
                 ${!isFaculty ? (submitted
                             ? `<span class="badge badge-success">✅ Submitted${sub?.marks != null ? ' • ' + sub.marks + '/' + a.max_marks : ''}</span>`
-                            : `<button class="btn btn-primary btn-sm" onclick="submitAssignment(${a.id},'${escHtml(a.title)}')">📤 Submit</button>`)
-                            : `<button class="btn btn-info btn-sm" onclick="viewSubmissions(${a.id},'${escHtml(a.title)}')">👁 View Submissions</button>`}
+                            : `<button class="btn btn-primary btn-sm" onclick="submitAssignment('${a.id}','${escHtml(a.title)}')">📤 Submit</button>`)
+                            : `<button class="btn btn-info btn-sm" onclick="viewSubmissions('${a.id}','${escHtml(a.title)}')">👁 View Submissions</button>`}
               </div>
             </div>`;
                 }).join('')}
@@ -89,11 +89,16 @@ window.submitAssignment = (id, title) => {
     openModal(`
     <h2 class="modal-title">📤 Submit Assignment</h2>
     <p class="modal-subtitle">${title}</p>
-    <div class="form-group-mb"><label class="form-label">Upload File (optional)</label>
-      <input id="m-subfile" class="form-control" type="file" accept=".pdf,.doc,.docx,.zip,.txt" /></div>
+    <div class="form-group-mb" style="text-align: center; border: 2px dashed var(--primary); padding: 30px; border-radius: 12px; background: rgba(0,171,228,0.05); cursor: pointer; transition: all 0.3s;" onclick="document.getElementById('m-subfile').click()" onmouseover="this.style.background='rgba(0,171,228,0.1)'" onmouseout="this.style.background='rgba(0,171,228,0.05)'">
+      <div style="font-size: 32px; margin-bottom: 10px;">📁</div>
+      <div style="font-size: 16px; font-weight: 600; color: var(--primary);">Click to Browse System Storage</div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Select PDF, DOCX, ZIP, or TXT file</div>
+      <input id="m-subfile" type="file" accept=".pdf,.doc,.docx,.zip,.txt" style="display:none" onchange="document.getElementById('file-name').textContent = this.files[0] ? 'Selected: ' + this.files[0].name : 'No file selected'" />
+    </div>
+    <div id="file-name" style="text-align:center; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:20px;">No file selected</div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" id="m-subpost">Submit</button>
+      <button class="btn btn-primary" id="m-subpost">Upload & Submit</button>
     </div>`);
     document.getElementById('m-subpost').addEventListener('click', async () => {
         const fd = new FormData();
@@ -120,7 +125,7 @@ window.viewSubmissions = async (id, title) => {
             <span class="badge badge-${s.status === 'graded' ? 'success' : s.status === 'late' ? 'danger' : 'info'}">${s.status}</span>
             ${s.marks != null ? `<span style="font-size:13px;color:var(--text-primary)">${s.marks} marks</span>` : ''}
             ${s.file_url ? `<a href="${s.file_url}" target="_blank" class="btn btn-info btn-sm">📄 File</a>` : ''}
-            <button class="btn btn-success btn-sm" onclick="gradeSubmission(${s.id})">✏️ Grade</button>
+            <button class="btn btn-success btn-sm" onclick="gradeSubmission('${s.id}')">✏️ Grade</button>
           </div>`).join('')}
       </div>
       <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button></div>`);
@@ -178,8 +183,8 @@ async function renderLeaves() {
             <span class="badge badge-${statusCol[l.status]}">${statusIcon[l.status]} ${l.status}</span>
             ${!isStudent && l.status === 'pending' ? `
               <div class="leave-actions">
-                <button class="btn btn-success btn-sm" onclick="reviewLeave(${l.id},'approved')">✅ Approve</button>
-                <button class="btn btn-danger btn-sm" onclick="reviewLeave(${l.id},'rejected')">❌ Reject</button>
+                <button class="btn btn-success btn-sm" onclick="reviewLeave('${l.id}','approved')">✅ Approve</button>
+                <button class="btn btn-danger btn-sm" onclick="reviewLeave('${l.id}','rejected')">❌ Reject</button>
               </div>` : ''}
           </div>`).join('') + `</div>`}`;
 
@@ -287,8 +292,8 @@ async function renderMarks() {
             ${students.map(s => `<tr>
               <td><strong>${s.name}</strong></td><td>${s.student_id || '—'}</td><td>${s.department || '—'}</td>
               <td><span id="cgpa-${s.id}">...</span></td>
-              <td><button class="btn btn-info btn-sm" onclick="viewStudentMarks(${s.id},'${s.name}')">View Marks</button>
-                <button class="btn btn-primary btn-sm" onclick="addMarksFor(${s.id},'${s.name}')">+ Marks</button></td>
+              <td><button class="btn btn-info btn-sm" onclick="viewStudentMarks('${s.id}','${s.name}')">View Marks</button>
+                <button class="btn btn-primary btn-sm" onclick="addMarksFor('${s.id}','${s.name}')">+ Marks</button></td>
             </tr>`).join('')}
           </tbody>
         </table></div>`;

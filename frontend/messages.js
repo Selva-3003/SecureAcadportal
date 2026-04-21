@@ -62,7 +62,7 @@ async function renderMessages() {
             </div></div>`;
                 }).join('') || '<div class="empty-state" style="padding:30px"><p>No contacts</p></div>';
                 list.querySelectorAll('.chat-item').forEach(el =>
-                    el.addEventListener('click', () => openDMChat(parseInt(el.dataset.uid), el.dataset.name, el.dataset.role))
+                    el.addEventListener('click', () => openDMChat(el.dataset.uid, el.dataset.name, el.dataset.role))
                 );
             } else {
                 const filtered = myGroups.filter(g => g.name.toLowerCase().includes(q));
@@ -75,7 +75,7 @@ async function renderMessages() {
               <div class="chat-item-role">${g.description || 'Group chat'}</div>
             </div></div>`).join('') || '<div class="empty-state" style="padding:30px"><p>No groups</p></div>';
                 list.querySelectorAll('.chat-item[data-gid]').forEach(el =>
-                    el.addEventListener('click', () => openGroupChat(parseInt(el.dataset.gid), el.dataset.gname))
+                    el.addEventListener('click', () => openGroupChat(el.dataset.gid, el.dataset.gname))
                 );
                 document.getElementById('create-group-btn')?.addEventListener('click', showCreateGroupModal);
             }
@@ -105,6 +105,9 @@ async function openDMChat(userId, userName, userRole) {
     document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
     document.querySelector(`.chat-item[data-uid="${userId}"]`)?.classList.add('active');
 
+    const isFaculty = userRole === 'faculty';
+    const placeholderText = isFaculty ? 'Message faculty...' : 'Type a message...';
+
     const main = document.getElementById('chat-main');
     main.innerHTML = `
     <div class="chat-header">
@@ -122,7 +125,7 @@ async function openDMChat(userId, userName, userRole) {
     <div class="chat-messages" id="chat-messages"><div class="loader"><div class="spinner"></div></div></div>
     <div class="chat-filter-notice" id="filter-notice"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Keep messages academic</div>
     <div class="chat-input-area">
-      <textarea class="chat-input" id="chat-input" placeholder='Type academic message...' rows="1"></textarea>
+      <textarea class="chat-input" id="chat-input" placeholder="${placeholderText}" rows="1"></textarea>
       <button class="chat-send-btn" id="send-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polyline points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
     </div>`;
 

@@ -9,7 +9,10 @@ router.get('/users', authenticate, authorize('admin', 'faculty'), async (req, re
     try {
         const users = await models.User.find().select('-password').sort('-created_at').lean();
         res.json(users.map(u => ({ ...u, id: u._id })));
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('GET /admin/users error:', err);
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // POST /api/admin/users (create)
@@ -26,7 +29,10 @@ router.post('/users', authenticate, authorize('admin'), async (req, res) => {
             name, email, password: hash, role, student_id: student_id || null, department: department || null
         });
         res.json({ id: user.id, message: 'User created' });
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('POST /admin/users error:', err);
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // PUT /api/admin/users/:id/suspend
@@ -34,7 +40,11 @@ router.put('/users/:id/suspend', authenticate, authorize('admin'), async (req, r
     try {
         await models.User.findByIdAndUpdate(req.params.id, { is_suspended: true });
         res.json({ message: 'User suspended' });
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('PUT /users/:id/suspend error:', err);
+        if (err.name === 'CastError') return res.status(400).json({ error: 'Invalid User ID' });
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // PUT /api/admin/users/:id/recover
@@ -42,7 +52,11 @@ router.put('/users/:id/recover', authenticate, authorize('admin'), async (req, r
     try {
         await models.User.findByIdAndUpdate(req.params.id, { is_suspended: false, warning_count: 0 });
         res.json({ message: 'Account recovered' });
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('PUT /users/:id/recover error:', err);
+        if (err.name === 'CastError') return res.status(400).json({ error: 'Invalid User ID' });
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // DELETE /api/admin/users/:id
@@ -63,7 +77,11 @@ router.delete('/users/:id', authenticate, authorize('admin'), async (req, res) =
         await models.User.findByIdAndDelete(id);
         
         res.json({ message: 'User and all associated data deleted successfully' });
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('DELETE /users/:id error:', err);
+        if (err.name === 'CastError') return res.status(400).json({ error: 'Invalid User ID' });
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // GET /api/admin/warnings
@@ -80,7 +98,10 @@ router.get('/warnings', authenticate, authorize('admin'), async (req, res) => {
             is_suspended: w.user_id?.is_suspended,
             student_id: w.user_id?.student_id
         })));
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('GET /admin/warnings error:', err);
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // GET /api/admin/messages (chat monitoring)
@@ -127,7 +148,11 @@ router.put('/security-alerts/:id/resolve', authenticate, authorize('admin'), asy
     try {
         await models.SecurityAlert.findByIdAndUpdate(req.params.id, { resolved: true });
         res.json({ message: 'Alert resolved' });
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('PUT /security-alerts/:id/resolve error:', err);
+        if (err.name === 'CastError') return res.status(400).json({ error: 'Invalid Alert ID' });
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // GET /api/admin/login-attempts

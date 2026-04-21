@@ -13,7 +13,7 @@ async function handleViolation(userId, content, reason) {
     await models.User.findByIdAndUpdate(userId, { warning_count: newWarnings });
     await models.Warning.create({ user_id: userId, message: content, reason });
     
-    if (newWarnings >= 3) {
+    if (newWarnings > 3) {
         await models.User.findByIdAndUpdate(userId, { is_suspended: true });
         await createAlert('auto_suspension', 'high', userId, `Suspended after ${newWarnings} warnings. Last: ${reason}`);
         await logActivity(userId, user.name, 'SUSPENDED', `Auto-suspended after ${newWarnings} violations`, null);
@@ -28,14 +28,14 @@ async function handleViolation(userId, content, reason) {
 // GET /api/messages/users
 router.get('/users', authenticate, async (req, res) => {
     try {
-        let query = { is_suspended: false };
-        if (req.user.role === 'student') query.role = 'faculty';
-        else if (req.user.role === 'faculty') query.role = 'student';
-        else query._id = { $ne: req.user.id };
+        let query = { is_suspended: false, _id: { $ne: req.user.id } };
 
         const users = await models.User.find(query).select('name email role department student_id').lean();
         res.json(users.map(u => ({ ...u, id: u._id })));
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('GET /users error:', err);
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // GET /api/messages/dm/:userId
@@ -55,7 +55,11 @@ router.get('/dm/:userId', authenticate, async (req, res) => {
             sender_name: m.sender_id?.name,
             sender_role: m.sender_id?.role
         })));
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('GET /dm/:userId error:', err);
+        if (err.name === 'CastError') return res.status(400).json({ error: 'Invalid User ID' });
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // POST /api/messages/dm - with spam + content filter
@@ -78,7 +82,7 @@ router.post('/dm', authenticate, async (req, res) => {
         if (!filterResult.allowed) {
             const violation = await handleViolation(req.user.id, content, filterResult.reason);
             if (violation.suspended) {
-                return res.status(403).json({ error: '🚫 Account suspended due to repeated policy violations. Contact admin.', warning_count: violation.warning_count, suspended: true });
+                return res.status(403).json({ error: '🚫 Account suspended due to repeated policy violations. Contact admin.', warning_count: violation.warning_count, suspended: true, filtered: true });
             }
             return res.status(400).json({ error: `⚠ Warning ${violation.warning_count}/3: ${filterResult.reason}. Please keep communications academic.`, warning_count: violation.warning_count, filtered: true });
         }
@@ -91,7 +95,11 @@ router.post('/dm', authenticate, async (req, res) => {
             ...msg.toObject(), id: msg._id,
             sender_name: msg.sender_id?.name, sender_role: msg.sender_id?.role
         });
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('POST /dm error:', err);
+        if (err.name === 'CastError') return res.status(400).json({ error: 'Invalid User or Group ID' });
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // GET /api/messages/groups
@@ -130,7 +138,11 @@ router.post('/group', authenticate, async (req, res) => {
 
         const filterResult = filterMessage(content);
         if (!filterResult.allowed) {
-            return res.status(400).json({ error: `⚠ ${filterResult.reason}`, filtered: true });
+            const violation = await handleViolation(req.user.id, content, filterResult.reason);
+            if (violation.suspended) {
+                return res.status(403).json({ error: '🚫 Account suspended due to repeated policy violations. Contact admin.', warning_count: violation.warning_count, suspended: true, filtered: true });
+            }
+            return res.status(400).json({ error: `⚠ Warning ${violation.warning_count}/3: ${filterResult.reason}. Please keep communications academic.`, warning_count: violation.warning_count, filtered: true });
         }
 
         const msg = await models.Message.create({ sender_id: req.user.id, group_id, content });
@@ -141,7 +153,11 @@ router.post('/group', authenticate, async (req, res) => {
             ...msg.toObject(), id: msg._id,
             sender_name: msg.sender_id?.name, sender_role: msg.sender_id?.role
         });
-    } catch (err) { res.status(500).json({ error: 'Server Error' }); }
+    } catch (err) {
+        console.error('POST /group error:', err);
+        if (err.name === 'CastError') return res.status(400).json({ error: 'Invalid Group ID' });
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 // POST /api/messages/groups/create (faculty/admin)

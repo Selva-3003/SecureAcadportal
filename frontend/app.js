@@ -3,7 +3,9 @@
    =============================================== */
 
 
-const API = '/api';
+const API = (window.location.port !== '3001' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
+    ? 'http://localhost:3001/api'
+    : '/api';
 let currentUser = null;
 let authToken = null;
 let socket = null;
@@ -155,13 +157,6 @@ function updateAttemptsBar(count) {
     label.textContent = `${count} / ${MAX_ATTEMPTS}`;
 }
 
-function fakeBcryptPreview(pw) {
-    if (!pw) return '';
-    const chars = '$2a$12$ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./';
-    const salt = Array.from({ length: 22 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-    const hash = Array.from({ length: 31 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-    return `$2a$12$${salt}${hash}`;
-}
 
 function initLogin() {
     initParticles();
@@ -179,22 +174,9 @@ function initLogin() {
         b.addEventListener('click', () => {
             document.getElementById('login-email').value = b.dataset.email;
             document.getElementById('login-password').value = b.dataset.pw;
-            document.getElementById('lp-hash-preview').textContent = fakeBcryptPreview(b.dataset.pw);
         });
     });
 
-    // Password → bcrypt preview
-    const pwInput = document.getElementById('login-password');
-    if (pwInput) {
-        pwInput.addEventListener('input', () => {
-            const preview = document.getElementById('lp-hash-preview');
-            if (pwInput.value.length > 0) {
-                preview.textContent = fakeBcryptPreview(pwInput.value);
-            } else {
-                preview.textContent = '';
-            }
-        });
-    }
 
     // Toggle password visibility
     document.getElementById('toggle-pw')?.addEventListener('click', () => {
@@ -319,7 +301,6 @@ function initLogin() {
             toast('✅ Registration successful! You can now log in.', 'success');
             document.getElementById('login-email').value = email;
             document.getElementById('login-password').value = password;
-            document.getElementById('lp-hash-preview').textContent = fakeBcryptPreview(password);
 
             // Go to login view
             document.getElementById('go-to-login').click();
@@ -455,7 +436,8 @@ function navigateTo(page) {
 
 // ---- SOCKET ----
 function initSocket() {
-    socket = io('http://localhost:3001', { auth: { token: authToken } });
+    const SOCKET_SERVER = API.startsWith('http') ? API.replace('/api', '') : window.location.origin;
+    socket = io(SOCKET_SERVER, { auth: { token: authToken } });
     socket.on('connect', () => {
         document.getElementById('conn-status').innerHTML = '<span class="status-dot online"></span><span>Connected</span>';
     });
@@ -501,7 +483,6 @@ function logout() {
     lp.classList.add('active');
     // Refresh page on logout to clear any partial state
     location.reload();
-    toast('Signed out successfully', 'info');
 }
 
 // ---- AUTO LOGIN ----

@@ -1495,16 +1495,22 @@ select {
   background: none;
   border: none;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
   border-bottom: 2px solid transparent;
 }
 
+.chat-tab:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
 .chat-tab.active {
-  color: var(--primary-light);
+  color: var(--primary);
   border-bottom-color: var(--primary);
+  font-weight: 700;
 }
 
 .chat-main {
